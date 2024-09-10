@@ -8,13 +8,11 @@ body {
     background-position: center; /* Arka plan resmini merkezde konumlandırır */
 }
 
-
 .app-container {
     display: flex; /* Flexbox düzenini etkinleştirir */
     flex-direction: column; /* Flex öğeleri sütun halinde sıralar */
     min-height: 100vh; /* Minimum yükseklik olarak ekranın tamamını kullanır */
 }
-
 
 
 /* Navigasyon Çubuğu Tasarımı */
@@ -37,67 +35,14 @@ nav .logo img {
 }
 
 
-#map {
-    z-index: 1; /* Sidebar'ın altında kalmasını sağlar */
+main {
+    flex: 1; /* Ana içeriğin kalan boşluğu kaplamasını sağlar */
+    padding: 20px; /* İç kenar boşlukları ekler */
+    display: flex; /* Flexbox düzenini etkinleştirir */
+    justify-content: center; /* İçeriği yatayda ortalar */
+    align-items: center; /* İçeriği dikeyde ortalar */
+    position: relative; /* Konumunu göreceli yapar */
 }
-
-
-/* Harita Butonu */
-#mapButton {
-    background-color: #0056b3; /* Butonun arka plan rengi (mavi) */
-    color: #fff; /* Buton üzerindeki metin rengi (beyaz) */
-    border: none; /* Kenarlık yok */
-    border-radius: 8px; /* Köşeleri yuvarlatma */
-    padding: 12px 24px; /* İç boşluk (üst-alt ve sağ-sol) */
-    font-size: 16px; /* Metin boyutu */
-    font-family: Arial, sans-serif; /* Yazı tipi */
-    cursor: pointer; /* Fareyle üzerine gelindiğinde el işareti */
-    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s; /* Geçiş efektleri */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Gölge efekti */
-    margin: 10px 10px 0px 10px; /* Sağ ve sol tarafa 10px mesafe, alt tarafa 10px mesafe */
-}
-
-/* Butona fare ile üzerine gelindiğinde uygulanan stil */
-#mapButton:hover {
-    background-color: #F0EDCF; /* Koyu mavi arka plan rengi */
-    transform: scale(1.05); /* Butonu biraz büyütme */
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3); /* Daha belirgin gölge */
-}
-
-/* Buton focus (seçili) durumundayken uygulanan stil */
-#mapButton:focus {
-    outline: none; /* Focus durumunda outline'ı kaldırma */
-}
-
-/* Butona tıklandığında uygulanan stil */
-#mapButton:active {
-    background-color: #004494; /* Daha koyu mavi arka plan rengi */
-    transform: scale(0.98); /* Butonu küçükçe küçültme */
-}
-
-/* Harita görünür olduğunda ana sayfa içeriğini sola kaydırır */
-.shift-left {
-    transform: translateX(-300px); /* İsteğe bağlı olarak kaydırma mesafesini ayarlayın */
-    transition: transform 0.3s ease;
-}
-
-
-.social-icons {
-    display: flex; /* Sosyal medya simgelerini yatayda sıralar */
-    gap: 15px; /* İkonlar arasına boşluk ekler */
-}
-
-.social-icon {
-    color: white; /* Simgelerin rengini beyaz yapar */
-    font-size: 1.1rem; /* Simgelerin boyutunu ayarlar */
-    text-decoration: none; /* Alt çizgiyi kaldırır */
-    width: 25px;
-}
-
-.social-icon:hover {
-    color: #F0EDCF; /* Üzerine gelindiğinde simgelerin rengini değiştirir */
-}
-
 
 .menu {
     display: flex; /* Flexbox düzenini etkinleştirir */
@@ -131,24 +76,14 @@ nav .logo img {
 }
 
 
-main {
-    flex: 1; /* Ana içeriğin kalan boşluğu kaplamasını sağlar */
-    padding: 20px; /* İç kenar boşlukları ekler */
-    display: flex; /* Flexbox düzenini etkinleştirir */
-    justify-content: center; /* İçeriği yatayda ortalar */
-    align-items: center; /* İçeriği dikeyde ortalar */
-    position: relative; /* Konumunu göreceli yapar */
-}
-
-
 .weather-display {
     background-color: rgba(255, 255, 255, 0.8); /* Beyaz kutunun arka planını yarı şeffaf yapar */
-    border-radius: 8px; /* Kenarları yuvarlaklaştırır */
+    border-radius: 25px; /* Kenarları yuvarlaklaştırır */
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Hafif bir gölge ekler */
     padding: 15px; /* İç kenar boşlukları ekler */
     max-width: 400px; /* Maksimum genişliği belirler */
     width: 180px; /* Genişliğini kutu içerisine sığacak şekilde yapar */
-    height: 270px; /*Yüksekliğini belirler.*/
+    height: 370px; /*Yüksekliğini belirler.*/
     text-align: center; /* Metni ortalar */
     backdrop-filter: blur(40px); /* Beyaz kutuyu hafif bulanıklaştırır */
     flex-direction: column; /*Ögeleri dikey olarak hizalar.*/
@@ -168,22 +103,13 @@ main {
 
 
 
-/* Döviz bilgileri için stil */
-.currency-ticker {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    background-color: #0056b3; /* Döviz bilgi arka plan rengi */
-    color: #fff; /* Metin rengi */
-    padding: 2px 20px;
-    border-radius: 5px;
-    font-size: 12px; /* Metin boyutu */
-    display: inline-block;
+#map {
+    z-index: 1; /* Sidebar'ın altında kalmasını sağlar */
+    border-radius: 25px;
 }
 
 
-
-
+/* FOOTER / SOSYAL MEDYA / DÖVİZ */
 /* Genel footer stilleri */
 footer {
     position: relative;
@@ -197,6 +123,7 @@ footer {
     height: 35px;
     font-size: 0.6rem; /* Metin boyutunu küçültür */
     z-index: 1000; /* Sidebar'ın üzerinde olacak şekilde yüksek bir z-index değeri ver */
+    margin-top: auto; /* Footer'ı sayfanın en altına iteler */
 }
 
 /* Sosyal medya ikonları */
@@ -207,6 +134,18 @@ footer {
     display: flex; /* Flexbox düzenini etkinleştirir */
     gap: 10px; /* İkonlar arasında boşluk ekler */
     height: 16px;
+}
+
+.social-icons {
+    display: flex; /* Sosyal medya simgelerini yatayda sıralar */
+    gap: 15px; /* İkonlar arasına boşluk ekler */
+}
+
+.social-icon {
+    color: white; /* Simgelerin rengini beyaz yapar */
+    font-size: 1.1rem; /* Simgelerin boyutunu ayarlar */
+    text-decoration: none; /* Alt çizgiyi kaldırır */
+    width: 25px;
 }
 
 .footer-social-icons .social-icon {
@@ -220,8 +159,34 @@ footer {
 }
 
 
+/* Döviz bilgileri için stil */
+.currency-ticker {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: #0056b3; /* Döviz bilgi arka plan rengi */
+    color: #fff; /* Metin rengi */
+    padding: 2px 20px;
+    border-radius: 5px;
+    font-size: 12px; /* Metin boyutu */
+    display: inline-block;
+}
+
+/* Döviz bilgilerini sol tarafta göstermek için stil */
+#currency-info {
+    margin-left: 0; /* Footer'ın sol tarafında konumlandır */
+    font-size: 14px; /* Yazı boyutu */
+}
+
+/* Ek stil ayarlamaları */
+.currency-rates {
+    display: flex;
+    gap: 10px; /* Kurlar arasındaki boşluk */
+    font-size: 10px;
+}
 
 
+/* YOUTUBE */
 /* Konteyner için temel stiller */
 #youtube-container {
     position: fixed; /* Sabit konumlandırma, ekran kaydırıldığında yerinde kalır */
@@ -261,12 +226,15 @@ footer {
     top: 180%; /* Konumun yukarıya doğru kaydırılması */
     left: -40px; /* Soldan konum */
     transform: translateY(-50%); /* Yükseklik boyunca merkezleme */
-    background: #0056b3; /* Arka plan rengi */
+    background: #004494; /* Arka plan rengi */
     color: white; /* Yazı rengi */
     border: none; /* Kenarlık yok */
-    border-radius: 30px; /* Köşe yuvarlama */
+    border-radius: 20px; /* Köşe yuvarlama */
     padding: 5px; /* İç boşluk */
     cursor: pointer; /* Üzerine gelindiğinde imleci el işareti yapar */
+    font-size: 18px; /* Yazı boyutunu küçültür */
+    width: 40px; /* Buton genişliğini ayarlar */
+    height: 40px; /* Buton yüksekliğini ayarlar */
 }
 
 /* Toggle butonunun üzerine gelindiğinde arka plan rengini değiştirir */
@@ -285,101 +253,105 @@ footer {
 }
 
 
-
-#sidebar {
-    position: fixed; /* Kenar çubuğunu sabitler */
-    top: 0; /* Üstten 0 px uzaklıkta başlatır */
-    left: -300px; /* Ekranın solundan gizler */
-    width: 300px; /* Kenar çubuğunun genişliğini ayarlar */
-    height: 100vh; /* Kenar çubuğunun yüksekliğini ekran yüksekliği kadar yapar */
-    background-color: #333; /* Sidebar arka plan rengini daha koyu yap */
-    color: white; /* Metin rengini beyaz yap */
-    box-shadow: 2px 0 5px rgba(0,0,0,0.3); /* Hafif bir gölge ekler */
-    transition: left 0.3s ease; /* Görünürlük geçişi için animasyon ekler */
-    display: flex; /* Flexbox düzenini etkinleştirir */
-    flex-direction: column; /* Elemanları dikeyde sıralar */
-    justify-content: space-between; /* Elemanlar arasında alanı eşit dağıtır */
+/* SİDEBAR VE HABERLER */
+/* Sidebar stilini güncelle */
+.sidebar {
+    height: 100%;
+    width: 250px; /* Sidebar genişliği */
+    position: fixed;
+    top: 0;
+    left: 0; /* Sidebar'ı sol tarafa hizalar */
+    background-color: #f4f4f4; /* Sidebar arka plan rengi */
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2); /* Sidebar'a gölge efekti */
+    overflow-y: auto; /* İçeriğin taşmasını sağlar */
+    transform: translateX(-100%); /* Başlangıçta gizli */
+    transition: transform 0.3s ease; /* Kaydırma efektini ekler */
     z-index: 5; /* Kenar çubuğunu diğer öğelerin üstünde görünecek şekilde ayarlar */
     z-index: 10; /* Haritanın üstünde görünür */
 }
 
-.sidebar-header {
-    padding: 30px; /* Üst başlık için iç kenar boşlukları ekler */
-    background-color: #444; /* Üst başlık için daha koyu bir renk kullan */
-    text-align: center; /* Metni ortalar */
-    font-weight: bold; /* Yazı tipini kalın yapar */
-    border-bottom: 1px solid #555; /* Altında ince bir çizgi ekler */
-    height: 30px;
+.sidebar.open {
+    transform: translateX(0); /* Sidebar'ı gösterir */
 }
 
-.sidebar-content {
-    padding: 20px; /* İçerik için iç kenar boşlukları ekler */
-    flex-grow: 1; /* İçeriğin kalan alanı kaplamasını sağlar */
-    overflow-y: auto; /* İçeriğin dikey kaydırılmasını sağlar */
+.sidebar .closebtn {
+    position: absolute;
+    background-color: #ff4d4d;
+    top: 10px;
+    right: 10px;
+    font-size: 36px;
+    cursor: pointer;
+    margin-top: 60px; /* Başlığı yukarıda nav'ın altına alır */
+    border-radius: 10px;
 }
 
-.sidebar-content input,
-.sidebar-content button {
-    width: 100%; /* Genişliği yüzde 100 yapar */
-    padding: 10px; /* İç kenar boşlukları ekler */
-    margin-bottom: 10px; /* Altında boşluk bırakır */
-    border: none; /* Kenarlığı kaldırır */
-    border-radius: 4px; /* Kenarları yuvarlaklaştırır */
-    background-color: #555; /* Input ve buton arka plan rengini koyulaştır */
-    color: white; /* Metin rengini beyaz yap */
+.sidebar .closebtn:hover {
+    background-color: #a90000; /* Hover durumunda arka plan rengini değiştirir */
 }
 
-.sidebar-content button {
-    background-color: #0056b3; /* Butonun arka plan rengini mavi yap */
+/* Haberler başlığı stili */
+#sidebar h2 {
+    font-size: 1.5em;
+    margin: 0 0 10px 20px; /* Başlık için üstten ve soldan margin */
+    margin-top: 60px; /* Başlığı yukarıda nav'ın altına alır */
+}
+
+/* Haberler içeriği stili */
+#newsContainer {
+    padding: 0 20px; /* İçeriğin kenarlarına padding ekler */
+}
+
+#newsContainer ul {
+    list-style-type: none; /* Liste işaretlerini kaldırır */
+    padding: 0; /* İç padding'i kaldırır */
+    margin: 0; /* Margin'i kaldırır */
+}
+
+#newsContainer li {
+    border-bottom: 1px solid #ddd; /* Her haber öğesi için alt sınır */
+    margin-bottom: 10px; /* Her haber öğesi arasına boşluk ekler */
+    padding-bottom: 10px; /* Her haber öğesinin altına padding ekler */
+}
+
+#newsContainer a {
+    text-decoration: none; /* Bağlantı alt çizgisini kaldırır */
+    color: #333; /* Bağlantı rengi */
+    font-weight: bold; /* Bağlantı metnini kalın yapar */
+}
+
+#newsContainer p {
+    margin: 5px 0 0; /* Haber açıklamaları için margin ayarları */
+    color: #666; /* Açıklama rengi */
+}
+
+
+
+/* Toggle butonunu küçültmek için */
+.sidebar-toggle {
+    position: fixed; /* Butonu sabitler */
+    top: 50%; /* Ekranın ortasında konumlandırır */
+    left: 0; /* Ekranın sol tarafında konumlandırır */
+    background-color: #004494; /* Arka plan rengini koyu mavi yapar */
+    color: white; /* Metin rengini beyaz yapar */
+    border: none; /* Kenarlıkları kaldırır */
+    padding: 5px 10px; /* İç kenar boşluklarını küçültür */
+    font-size: 18px; /* Yazı boyutunu küçültür */
     cursor: pointer; /* Fare üzerine geldiğinde işaretçi el simgesi olur */
-    transition: background-color 0.3s ease; /* Hover efekti için geçiş animasyonu ekler */
-}
-
-.sidebar-content button:hover {
-    background-color: #F0EDCF; /* Hover'da daha koyu mavi yap */
-}
-
-#closeSidebar {
-    background: #ff4d4d; /* Kapatma butonunun arka plan rengini kırmızı yap */
-    padding: 15px 20px; /* İç kenar boşlukları ekler */
-    cursor: pointer; /* Fare üzerine geldiğinde işaretçi el simgesi olur */
-    border: none; /* Buton kenarlığını kaldırır */
-    border-radius: 0; /* Köşeleri yuvarlaklaştırmaz */
+    z-index: 20; /* Kenar çubuğundan üstte görünür */
+    border-radius: 20px; /* Kenarları yuvarlaklaştırır */
+    width: 40px; /* Buton genişliğini ayarlar */
+    height: 40px; /* Buton yüksekliğini ayarlar */
     text-align: center; /* Metni ortalar */
-    font-size: 1rem; /* Yazı tipini büyütür */
-    width: -80px;
 }
 
-#closeSidebar:hover {
-    background: #cc0000; /* Hover'da kırmızı tonu koyulaştırır */
+/* Toggle butonunun üzerine gelindiğinde arka plan rengini değiştirir */
+.sidebar-toggle:hover {
+    background-color: #F0EDCF; /* Hover durumunda arka plan rengini değiştirir */
 }
 
-#sidebar.open {
-    left: 0; /* Kenar çubuğunu görünür yapar */
-}
-
-#sidebar input[type="text"] {
-    padding: 10px; /* Daha küçük bir input için padding ayarla */
-    width: 240px; /* Genişliği azalt */
-    font-size: 0.9rem; /* Yazı tipini küçült */
-    border-radius: 4px; /* Yuvarlak köşeleri koru */
-    border: 1px solid #ccc; /* Hafif bir kenarlık */
-    margin-bottom: 10px; /* Inputun altında boşluk bırak */
-}
-
-
-
-/* Döviz bilgilerini sol tarafta göstermek için stil */
-#currency-info {
-    margin-left: 0; /* Footer'ın sol tarafında konumlandır */
-    font-size: 14px; /* Yazı boyutu */
-}
-
-/* Ek stil ayarlamaları */
-.currency-rates {
-    display: flex;
-    gap: 10px; /* Kurlar arasındaki boşluk */
-    font-size: 10px;
+.sidebar-toggle.shifted {
+    left: 250px; /* Sidebar genişliği kadar sağa kaydır */
 }
 
 
@@ -400,3 +372,43 @@ footer {
 }
 
 
+/* Haber sonuçları liste görünümünü düzenler */
+#newsResults {
+    width: 100%; /* Haberler tam genişlikte olacak şekilde ayarlanır */
+    max-width: 600px; /* Haberler için maksimum genişlik */
+}
+
+#newsResults ul {
+    list-style-type: none; /* Madde işaretlerini kaldır */
+    padding: 0;
+}
+
+#newsResults li {
+    margin-bottom: 20px; /* Her bir haber arasında boşluk bırak */
+    border-bottom: 1px solid #ccc; /* Alt çizgi ile ayır */
+    padding-bottom: 10px; /* Haberlerin sonuna biraz boşluk ekle */
+}
+
+#newsResults a {
+    text-decoration: none; /* Link altını kaldır */
+    font-size: 18px; /* Başlık boyutunu ayarla */
+    font-weight: bold; /* Başlıkları kalın yap */
+    color: #333; /* Başlık rengini belirle */
+}
+
+#newsResults p {
+    margin-top: 5px; /* Açıklama ile başlık arasında boşluk bırak */
+    color: #555; /* Açıklama rengini belirle */
+    font-size: 14px; /* Açıklama boyutunu ayarla */
+}
+
+
+/* Haber başlıklarını ve açıklamaları ortalamak için ek stil */
+#newsResults h3 {
+    text-align: center; /* Başlıkları ortalar */
+    margin-bottom: 10px; /* Başlık ile açıklama arasındaki boşluk */
+}
+
+#newsResults .description {
+    text-align: center; /* Açıklamaları ortalar */
+}
