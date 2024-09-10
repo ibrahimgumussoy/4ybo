@@ -10,97 +10,82 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome simgelerini ekler -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> <!-- Leaflet CSS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> <!-- Leaflet JS -->
-
-    <!-- leaflet-geosearch kütüphanesinin CSS ve JS dosyalarını ekleyin -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch/dist/geosearch.css" />
-<script src="https://unpkg.com/leaflet-geosearch/dist/geosearch.umd.js"></script>
-
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch/dist/geosearch.css" /> <!-- leaflet-geosearch CSS -->
+    <script src="https://unpkg.com/leaflet-geosearch/dist/geosearch.umd.js"></script> <!-- leaflet-geosearch JS -->
 </head>
 <body>
     <div class="app-container">
         <nav>
-            <div class="logo" id="openSidebar">
-                <img src="images/snilogo.webp" alt="SNI Logosu"> <!-- Logo resmi -->
+            <div class="logo">
+                <a href="https://www.snitechnology.net/" target="_blank"> <!-- Sadece logoya tıklanınca link çalışır -->
+                    <img src="images/snilogo.webp" alt="SNI Logosu"> <!-- Logo resmi -->
+                </a>
             </div>
+            <button id="toggleSidebar" class="sidebar-toggle">&#x25B6</button> <!-- Toggle butonu -->
         </nav>
-    
-        <main>
-            <!-- Harita kısmı -->
-            <div id="map" style="width: 40%; height: 400px;"></div>
 
-            <!-- Menü kısmı -->
+        <main>
+            <div id="map" style="width: 60%; height: 400px;"></div>
+
             <div class="menu">
-                <input type="text" id="cityName" placeholder="Şehir adı girin"> <!-- Şehir adı girişi -->
-                <button id="getWeather">Hava Durumunu Getir</button> <!-- Hava durumu getirme butonu -->
-                
-            <!-- Harita butonu -->
-                <button id="mapButton"><i class="fas fa-map-marker-alt"></i> Harita </button>
+                <input type="text" id="cityName" placeholder="Şehir adı girin">
+                <button id="getWeather">Hava Durumunu Getir</button>
             </div>
             
-            <!-- YouTube video container -->
             <div id="youtube-container">
-                <button id="toggleVideo" class="toggle-btn">&#x25C0;</button> <!-- Video geçiş butonu -->
-                
-                <!-- YouTube videoları -->
+                <button id="toggleVideo" class="toggle-btn">&#x25C0;</button>
                 <iframe width="300" height="200" src="https://www.youtube.com/embed/4ruhaPPD3EI?si=mYiDNRZURepAScvN" title="YouTube video oynatıcısı" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 <iframe width="300" height="200" src="https://www.youtube.com/embed/iT_-9HMNzI0?si=iRgQcwunHpAG_i1k" title="YouTube video oynatıcısı" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 <iframe width="300" height="200" src="https://www.youtube.com/embed/rCksNmJePu8?si=1aJRqDZgvmi7Ss7E" title="YouTube video oynatıcısı" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
             
-            <!-- Hava durumu kısmı -->
             <section class="weather-display">
                 <div class="weather-details">
-                    <h2>Hava Durumu</h2> <!-- Hava durumu başlığı -->
-                    <div id="weatherInfo" class="weatherInfo"></div> <!-- Hava durumu bilgileri burada gösterilecek -->
+                    <h2>Hava Durumu</h2>
+                    <div id="weatherInfo" class="weatherInfo"></div>
                 </div>    
             </section>
         </main>
 
-        
-            <!-- Kenar çubuğu -->
-            <div id="sidebar">
-                <div class="sidebar-header">
-                    <h2>MAÇ FİKSTÜRÜ</h2> <!-- Maç fikstürü başlığı -->
-                </div>
-                <div class="sidebar-content">
-                    <input type="text" id="fixtureQuery" placeholder="Takım adı girin"> <!-- Takım adı girişi -->
-                    <button id="showFixture">Göster</button> <!-- Fikstürü gösterme butonu -->
-                    <div id="aiResponse">Maç fikstürü alınabilir.</div> <!-- AI yanıtı için alan -->
-                    <button id="closeSidebar" class="close-btn">Kapat</button> <!-- Kenar çubuğunu kapama butonu -->
-                </div>
+        <div id="sidebar" class="sidebar">
+            <button id="closeSidebar" class="closebtn">&times;</button>
+            <h2>Haberler</h2>
+            <ul id="newsList">
+                <!-- Haberler burada görünecek -->
+            </ul>
+        </div>
+
+        <footer>   
+            <div class="currency-ticker">
+                <span id="currency-info">Döviz bilgileri yükleniyor...</span>
             </div>
-
-            <!-- Footer -->
-            <footer>   
-                <div class="currency-ticker">
-                    <span id="currency-info">Döviz bilgileri yükleniyor...</span> <!-- Döviz bilgileri -->
-                </div>
-                
-                    <p>&copy;2024 SNI technology @4ybo. Tüm Hakları Saklıdır.</p>
             
-                <div class="footer-social-icons">
+            <p>&copy;2024 SNI technology @4ybo. Tüm Hakları Saklıdır.</p>
+        
+            <div class="footer-social-icons">
+                <a href="https://www.facebook.com/lifeatsni-114318439983114/" target="_blank" class="social-icon">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="https://www.x.com/snitech" target="_blank" class="social-icon">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="https://www.instagram.com/lifeatsni" target="_blank" class="social-icon">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/snitechnology/" target="_blank" class="social-icon">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="https://www.youtube.com/channel/UCOtmcio8KXiEbzGAJnUeYVw" target="_blank" class="social-icon">
+                    <i class="fab fa-youtube"></i>
+                </a>
+                <a href="mailto:contact@snitechnology.net" target="_blank" class="social-icon">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </footer>
+        
+        <script src="script.js"></script> 
 
-            <!-- Sosyal medya simgeleri -->
-                    <a href="https://www.facebook.com/lifeatsni-114318439983114/" target="_blank" class="social-icon">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="https://www.x.com/snitech" target="_blank" class="social-icon">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="https://www.instagram.com/lifeatsni" target="_blank" class="social-icon">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://www.linkedin.com/company/snitechnology/" target="_blank" class="social-icon">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="https://www.youtube.com/channel/UCOtmcio8KXiEbzGAJnUeYVw" target="_blank" class="social-icon">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                </div>
-            </footer>
-
-            <!-- JavaScript dosyasını bağlar -->
-        <script src="script.js"></script>
     </div>
 </body>
 </html>
