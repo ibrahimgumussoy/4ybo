@@ -2,34 +2,17 @@
 const weatherApiKey = 'dfd8f478d290592bbf1d5eade1a87a92'; // OpenWeatherMap API anahtarı
 const weatherApiUrl = 'https://api.openweathermap.org/data/2.5/weather'; // OpenWeatherMap hava durumu API'sinin URL'si
 
-// Futbol API'si için URL ve API anahtarı
-const footballApiKey = '3mCdRQjhoXtRx8WK'; // Futbol API'si anahtarı
-const footballApiUrl = 'https://livescore-api.com/api-client/fixtures/matches.json'; // API URL'si
+// RSS to JSON servisi URL'si
+const rssToJsonUrl = 'https://api.rss2json.com/v1/api.json?rss_url=https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr';
+const newsList = document.getElementById('newsList');
+
+// Döviz API'si için URL ve API anahtarı
+const currencyApiUrl = 'https://v6.exchangerate-api.com/v6/c108945397e7b15f38b9c9b8/latest/TRY'; // Türk Lirası (TRY) cinsinden döviz API'sinin URL'si
 
 const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
-const targetUrl = 'https://livescore-api.com/api-client/fixtures/matches.json?competition_id=1&key=3mCdRQjhoXtRx8WK';
-fetch(proxyUrl + targetUrl)
-  .then(response => response.json())
-  .then(data => {
-    console.log(data);
-  })
-  .catch(error => {
-    console.error('Veri alınamadı:', error);
-  });
 
-  
-// Enter tuşu ile hava durumu arama
-document.getElementById('cityName').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        getWeather(); // Enter tuşuna basıldığında getWeather fonksiyonunu çağır
-        this.value = '';
-    }
-});
-
-// Butona tıklama ile hava durumu arama
-document.getElementById('getWeather').addEventListener('click', getWeather); // Butona tıklama ile getWeather fonksiyonunu çağır
-
+// HAVA DURUMU
 // Kullanıcının mevcut konumunu tespit eden ve hava durumu bilgilerini gösteren fonksiyon
 async function getWeatherByLocation() {
     const weatherInfoDiv = document.getElementById('weatherInfo'); // Hava durumu bilgilerini göstereceğimiz div
@@ -47,12 +30,16 @@ async function getWeatherByLocation() {
                 const data = await response.json(); // JSON verisini al
 
                 if (data.cod === 200) {
-                    // Hava durumu verilerini işleyip ekranda göster
+                // Hava durumu verilerini işleyip ekranda göster
                     const temperature = data.main.temp;
                     const description = data.weather[0].description;
                     const icon = `http://openweathermap.org/img/w/${data.weather[0].icon}.png`;
                     const humidity = data.main.humidity;
                     const windSpeed = data.wind.speed;
+
+                // Gün doğumu ve gün batımı saatlerini al
+                    const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
+                    const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
 
                     let weatherHtml = `
                         <h3>${data.name}, ${data.sys.country}</h3>
@@ -60,9 +47,15 @@ async function getWeatherByLocation() {
                         <img src="${icon}" alt="Weather Icon">
                         <p>Nem: ${humidity}%</p>
                         <p>Rüzgar Hızı: ${windSpeed} m/s</p>
+                        <p>Gün Doğumu: ${sunrise}</p>
+                        <p>Gün Batımı: ${sunset}</p>
                     `;
 
-                    weatherInfoDiv.innerHTML = weatherHtml; // Hava durumu bilgisini ekrana yazdır
+                    weatherInfoDiv.innerHTML = weatherHtml;
+
+
+                    // Kullanıcı konumunu haritada göster
+                    showUserLocationOnMap(lat, lon);
                 } else {
                     weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`; // Hava durumu bilgisi alınamadıysa kullanıcıya uyarı mesajı göster
                 }
@@ -80,42 +73,65 @@ async function getWeatherByLocation() {
 // Sayfa yüklendiğinde konum tabanlı hava durumu bilgilerini al
 window.addEventListener('load', getWeatherByLocation);
 
-// Hava durumu bilgisini getiren asenkron fonksiyon
+// Haritayı başlat
+const map = L.map('map').setView([39.9334, 32.8597], 6); // Başlangıç konumu Türkiye merkezli (Ankara)
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+}).addTo(map);
+
+let marker; // Marker değişkenini tanımlayın
+
+// Kullanıcı konumunu haritada gösteren fonksiyon
+function showUserLocationOnMap(lat, lon) {
+    if (marker) {
+        map.removeLayer(marker); // Eğer mevcut bir marker varsa, onu kaldırın
+    }
+
+    marker = L.marker([lat, lon]).addTo(map)
+        .bindPopup("Bu sizin konumunuz.")
+        .openPopup();
+    map.setView([lat, lon], 10); // Haritayı kullanıcının konumuna odaklayın
+}
+
+
+// Şehir ismi ile hava durumu bilgisini getiren asenkron fonksiyon
 async function getWeather() {
     const cityName = document.getElementById('cityName').value.trim(); // Şehir adını al
     const weatherInfoDiv = document.getElementById('weatherInfo'); // Hava durumu bilgilerini göstereceğimiz div
 
     if (!cityName) {
-        weatherInfoDiv.innerHTML = "<p>Lütfen bir şehir adı girin.</p>"; // Şehir adı girilmemişse kullanıcıya uyarı mesajı göster
+        weatherInfoDiv.innerHTML = "<p>Lütfen bir şehir adı girin.</p>";
         return;
     }
 
-    weatherInfoDiv.innerHTML = "<p>Yükleniyor...</p>"; // Veri yükleniyor mesajı göster
+    weatherInfoDiv.innerHTML = "<p>Yükleniyor...</p>";
 
     try {
-        // Hava durumu API'sinden veri al
         const response = await fetch(`${weatherApiUrl}?q=${cityName}&appid=${weatherApiKey}&units=metric&lang=tr`);
-        
+
         if (!response.ok) {
-            // Eğer 404 hatası ise şehir bulunamadı mesajı göster
             if (response.status === 404) {
                 weatherInfoDiv.innerHTML = `<p>Şehir bulunamadı. Lütfen farklı bir şehir adı girin.</p>`;
             } else {
-                // Diğer HTTP hataları için genel hata mesajı göster
                 throw new Error(`HTTP hata: ${response.status}`);
             }
             return;
         }
-        
-        const data = await response.json(); // JSON verisini al
+
+        const data = await response.json();
 
         if (data.cod === 200) {
-            // Hava durumu verilerini işleyip ekranda göster
+        // Hava durumu verilerini işleyip ekranda göster
             const temperature = data.main.temp;
             const description = data.weather[0].description;
             const icon = `http://openweathermap.org/img/w/${data.weather[0].icon}.png`;
             const humidity = data.main.humidity;
             const windSpeed = data.wind.speed;
+
+        // Gün doğumu ve gün batımı saatlerini al
+            const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString();
+            const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString();
 
             let weatherHtml = `
                 <h3>${data.name}, ${data.sys.country}</h3>
@@ -123,17 +139,48 @@ async function getWeather() {
                 <img src="${icon}" alt="Weather Icon">
                 <p>Nem: ${humidity}%</p>
                 <p>Rüzgar Hızı: ${windSpeed} m/s</p>
+                <p>Gün Doğumu: ${sunrise}</p>
+                <p>Gün Batımı: ${sunset}</p>
             `;
 
-            weatherInfoDiv.innerHTML = weatherHtml; // Hava durumu bilgisini ekrana yazdır
+            weatherInfoDiv.innerHTML = weatherHtml;
+
+            // Koordinatları harita üzerinde göster
+            const latitude = data.coord.lat;
+            const longitude = data.coord.lon;
+
+            if (marker) {
+                map.removeLayer(marker); // Eğer mevcut bir marker varsa, onu kaldırın
+            }
+
+            marker = L.marker([latitude, longitude]).addTo(map);
+            map.setView([latitude, longitude], 10); // Haritayı şehrin koordinatlarına yakınlaştır
         } else {
-            weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`; // Hava durumu bilgisi alınamadıysa kullanıcıya uyarı mesajı göster
+            weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`;
         }
     } catch (error) {
-        weatherInfoDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`; // Hata durumunda kullanıcıya uyarı mesajı göster
+        weatherInfoDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`;
     }
 }
 
+// Enter tuşu ile hava durumu arama
+document.getElementById('cityName').addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        getWeather(); // Enter tuşuna basıldığında getWeather fonksiyonunu çağır
+        this.value = '';
+    }
+});
+
+// Butona tıklama ile hava durumu arama
+document.getElementById('getWeather').addEventListener('click', getWeather); // Butona tıklama ile getWeather fonksiyonunu çağır
+
+// Harita üzerinde tıklama olayını dinle
+map.on('click', function(e) {
+    const lat = e.latlng.lat; // Tıklanan yerin enlem koordinatı
+    const lon = e.latlng.lng; // Tıklanan yerin boylam koordinatı
+
+    fetchWeatherByCoordinates(lat, lon); // Hava durumu bilgilerini koordinatlara göre al
+});
 
 // Koordinatlarla hava durumu bilgilerini getiren fonksiyon
 async function fetchWeatherByCoordinates(latitude, longitude) {
@@ -165,15 +212,23 @@ async function fetchWeatherByCoordinates(latitude, longitude) {
             `;
 
             weatherInfoDiv.innerHTML = weatherHtml; // Hava durumu bilgisini ekrana yazdır
+
+            if (marker) {
+                map.removeLayer(marker); // Eğer mevcut bir marker varsa, onu kaldırın
+            }
+
+            marker = L.marker([latitude, longitude]).addTo(map);
+            map.setView([latitude, longitude], 10); // Haritayı tıklanan noktaya odaklayın
         } else {
-            weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`; // Hava durumu bilgisi alınamadıysa kullanıcıya uyarı mesajı göster
+            weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`;
         }
     } catch (error) {
-        weatherInfoDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`; // Hata durumunda kullanıcıya uyarı mesajı göster
+        weatherInfoDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`;
     }
 }
 
 
+// YOUTUBE OKU
 document.getElementById('toggleVideo').addEventListener('click', function() {
     const videoContainer = document.getElementById('youtube-container');
     if (videoContainer.classList.contains('show')) {
@@ -187,107 +242,70 @@ document.getElementById('toggleVideo').addEventListener('click', function() {
     }
 })
 
-// Kenar çubuğunu açıp kapatan işlevi
-document.querySelector('.logo img').addEventListener('click', function() {
-    document.getElementById('sidebar').classList.toggle('open'); // Kenar çubuğunu açıp kapat
+
+
+document.getElementById('toggleSidebar').addEventListener('click', function() {
+    var sidebar = document.getElementById('sidebar');
+    var toggleBtn = document.getElementById('toggleSidebar');
+
+    sidebar.classList.toggle('open');
+    toggleBtn.classList.toggle('shifted');
+    
+    // Buton içeriğini değiştir
+    toggleBtn.innerHTML = sidebar.classList.contains('open') ? '&#x25C0;' : '&#x25B6;';
 });
 
-// Kenar çubuğunu kapatmak için 'closeSidebar' butonuna işlev ekleme
 document.getElementById('closeSidebar').addEventListener('click', function() {
-    document.getElementById('sidebar').classList.remove('open'); // Kenar çubuğunu kapat
+    var sidebar = document.getElementById('sidebar');
+    var toggleBtn = document.getElementById('toggleSidebar');
+
+    sidebar.classList.remove('open');
+    toggleBtn.classList.remove('shifted');
+    
+    toggleBtn.innerHTML = '&#x25B6;';
 });
 
-// Enter tuşu ile takım adı arama
-document.getElementById('fixtureQuery').addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        getFixture(); // Enter tuşuna basıldığında getFixture fonksiyonunu çağır
-    }
-});
 
-// Butona tıklama ile takım adı arama
-document.getElementById('showFixture').addEventListener('click', getFixture); // Butona tıklama ile getFixture fonksiyonunu çağır
-
-// Maç fikstürü bilgilerini getiren fonksiyon
-async function getFixture() {
-    const fixtureQuery = document.getElementById('fixtureQuery').value.trim(); // Takım adını al
-    const aiResponseDiv = document.getElementById('aiResponse'); // Maç fikstürü bilgilerini göstereceğimiz div
-
-    if (!fixtureQuery) {
-        aiResponseDiv.innerHTML = "<p>Lütfen bir takım adı girin.</p>"; // Takım adı girilmemişse kullanıcıya uyarı mesajı göster
-        return;
-    }
-
-    aiResponseDiv.innerHTML = "<p>Yükleniyor...</p>"; // Veri yükleniyor mesajı göster
-
-    // Proxy URL'sini ve API URL'sini birleştirin
-    const competitionIds = [2, 6, 347]; // İhtiyacınıza göre competition_id değerleri
-    const promises = competitionIds.map(id => {
-        const apiUrl = `${footballApiUrl}?competition_id=${id}&key=${footballApiKey}&secret=MMBgfMRm2x8n4RW8dyl5pFnNCRE9ZBUL`;
-        const fullUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`; // Proxy URL'sini API URL'si ile birleştirin
-        return fetch(fullUrl) // Proxy üzerinden API'yi çağır
-            .then(response => {
-                if (!response.ok) {
-                    console.warn(`Proxy ile hata alındı: ${response.status}. Doğrudan API'yi deniyorum...`);
-                    return fetch(apiUrl); // Proxy hatası durumunda doğrudan API'yi çağır
-                }
-                return response;
-            })
-            .then(response => response.json()) // JSON verisini al
-            .catch(error => {
-                console.error(`API hatası: ${error.message}`); // Hata mesajını konsola yazdır
-                return { data: { fixtures: [] } }; // Hata durumunda boş bir veri döndür
-            });
-    });
-
+// HABER
+// Haber bilgilerini getiren asenkron fonksiyon
+async function fetchNews() {
     try {
-        const results = await Promise.all(promises); // Tüm API çağrılarını bekle
-        let allFixtures = [];
+        const response = await fetch(rssToJsonUrl);
+        const data = await response.json();
+        
+        // Haberleri çekme
+        const items = data.items;
+        let newsHtml = '';
 
-        results.forEach(result => {
-            if (result && result.data && result.data.fixtures) {
-                allFixtures = allFixtures.concat(result.data.fixtures); // Tüm maç fikstürlerini birleştir
+        items.forEach((item, index) => {
+            if (index < 4) { // İlk 4 haberi al
+                const title = item.title;
+                const link = item.link;
+                const description = item.description;
+                
+                newsHtml += `
+                    <li>
+                        <a href="${link}" target="_blank">${title}</a>
+                        <p>${description}</p>
+                    </li>
+                `;
             }
         });
 
-        console.log(allFixtures); // API yanıtını konsola yazdır
-
-        if (allFixtures.length > 0) {
-            let fixtureHtml = '<h3>Maç Fikstürü</h3><ul>';
-
-            // Girilen takım adıyla eşleşen maçları filtrele
-            const filteredMatches = allFixtures.filter(match =>
-                match.home_name.toLowerCase().includes(fixtureQuery.toLowerCase()) ||
-                match.away_name.toLowerCase().includes(fixtureQuery.toLowerCase()));
-
-            if (filteredMatches.length > 0) {
-                filteredMatches.forEach(match => {
-                    const homeTeam = match.home_name;
-                    const awayTeam = match.away_name;
-                    const matchDate = new Date(match.date).toLocaleString(); // Maç tarihini formatla
-                    fixtureHtml += `<li>${matchDate}: ${homeTeam} vs ${awayTeam}</li>`;
-                });
-                fixtureHtml += '</ul>';
-            } else {
-                fixtureHtml = `<p>Belirtilen takıma ait maç bulunamadı.</p>`; // Maç bulunamadıysa kullanıcıya uyarı mesajı göster
-            }
-
-            aiResponseDiv.innerHTML = fixtureHtml; // Maç fikstürü bilgisini ekrana yazdır
-        } else {
-            aiResponseDiv.innerHTML = `<p>Fikstür verisi bulunamadı. Lütfen farklı bir takım adı girin.</p>`; // Fikstür verisi bulunamadıysa kullanıcıya uyarı mesajı göster
-        }
+        newsList.innerHTML = newsHtml;
     } catch (error) {
-        aiResponseDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`; // Hata durumunda kullanıcıya uyarı mesajı göster
+        newsList.innerHTML = `<li><p>Haberler alınamadı. Lütfen tekrar deneyin.</p></li>`;
+        console.error('Hata:', error); // Hata ayıklama için
     }
 }
 
+// Sayfa yüklendiğinde haberleri al
+window.addEventListener('load', fetchNews);
 
-            
 
 
 
-// Döviz API'si için URL ve API anahtarı
-const currencyApiUrl = 'https://v6.exchangerate-api.com/v6/c108945397e7b15f38b9c9b8/latest/TRY'; // Türk Lirası (TRY) cinsinden döviz API'sinin URL'si
-
+// DÖVİZ
 // Döviz bilgilerini getiren asenkron fonksiyon
 async function getRates() {
     const currencyInfoDiv = document.getElementById('currency-info');
@@ -322,205 +340,3 @@ async function getRates() {
 
 // Sayfa yüklendiğinde döviz kurlarını al
 window.addEventListener('load', getRates);
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // Haritayı başlat
-const map = L.map('map').setView([39.9334, 32.8597], 6); // Başlangıç konumu Türkiye merkezli (Ankara)
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-}).addTo(map);
-
-let marker; // Marker değişkenini tanımlayın
-
-async function getWeather() {
-    const cityName = document.getElementById('cityName').value.trim(); // Şehir adını al
-    const weatherInfoDiv = document.getElementById('weatherInfo'); // Hava durumu bilgilerini göstereceğimiz div
-
-    if (!cityName) {
-        weatherInfoDiv.innerHTML = "<p>Lütfen bir şehir adı girin.</p>";
-        return;
-    }
-
-    weatherInfoDiv.innerHTML = "<p>Yükleniyor...</p>";
-
-    try {
-        const response = await fetch(`${weatherApiUrl}?q=${cityName}&appid=${weatherApiKey}&units=metric&lang=tr`);
-
-        if (!response.ok) {
-            if (response.status === 404) {
-                weatherInfoDiv.innerHTML = `<p>Şehir bulunamadı. Lütfen farklı bir şehir adı girin.</p>`;
-            } else {
-                throw new Error(`HTTP hata: ${response.status}`);
-            }
-            return;
-        }
-
-        const data = await response.json();
- 
-        if (data.cod === 200) {
-            const temperature = data.main.temp;
-            const description = data.weather[0].description;
-            const icon = `http://openweathermap.org/img/w/${data.weather[0].icon}.png`;
-            const humidity = data.main.humidity;
-            const windSpeed = data.wind.speed;
-
-            let weatherHtml = `
-                <h3>${data.name}, ${data.sys.country}</h3>
-                <p>${temperature}°C, ${description}</p>
-                <img src="${icon}" alt="Weather Icon">
-                <p>Nem: ${humidity}%</p>
-                <p>Rüzgar Hızı: ${windSpeed} m/s</p>
-            `;
-
-            weatherInfoDiv.innerHTML = weatherHtml;
-
-            // Koordinatları harita üzerinde göster
-            const latitude = data.coord.lat;
-            const longitude = data.coord.lon;
-
-            // Eğer mevcut bir marker varsa, onu kaldırın
-            if (marker) {
-                map.removeLayer(marker);
-            }
-
-            // Yeni marker ekleyin
-            marker = L.marker([latitude, longitude]).addTo(map);
-            map.setView([latitude, longitude], 10); // Haritayı şehrin koordinatlarına yakınlaştır
-        } else {
-            weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`;
-        }
-    } catch (error) {
-        weatherInfoDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    var map = document.getElementById('map');
-    var mapButton = document.getElementById('mapButton');
-
-    mapButton.addEventListener('click', function() {
-        if (map.style.display === 'none') {
-            map.style.display = 'block'; // Haritayı göster
-            // Haritayı başlatmak için gerekli kodları buraya ekleyin
-        } else {
-            map.style.display = 'none'; // Haritayı gizle
-        }
-    });
-
-    // Haritayı başlatma kodu burada yer alabilir
-});
-
-
-// Şehir adı ile harita üzerinde konumu gösteren fonksiyon
-async function showCityOnMap(cityName) {
-    const weatherInfoDiv = document.getElementById('weatherInfo'); // Hava durumu bilgilerini göstereceğimiz div
-
-    if (!cityName) {
-        weatherInfoDiv.innerHTML = "<p>Lütfen bir şehir adı girin.</p>";
-        return;
-    }
-
-    weatherInfoDiv.innerHTML = "<p>Yükleniyor...</p>";
-
-    try {
-        const response = await fetch(`${weatherApiUrl}?q=${cityName}&appid=${weatherApiKey}&units=metric&lang=tr`);
-
-        if (!response.ok) {
-            if (response.status === 404) {
-                weatherInfoDiv.innerHTML = `<p>Şehir bulunamadı. Lütfen farklı bir şehir adı girin.</p>`;
-            } else {
-                throw new Error(`HTTP hata: ${response.status}`);
-            }
-            return;
-        }
-
-        const data = await response.json();
-
-        if (data.cod === 200) {
-            const latitude = data.coord.lat;
-            const longitude = data.coord.lon;
-
-            // Eğer mevcut bir marker varsa, onu kaldırın
-            if (marker) {
-                map.removeLayer(marker);
-            }
-
-            // Yeni marker ekleyin
-            marker = L.marker([latitude, longitude]).addTo(map);
-            map.setView([latitude, longitude], 10); // Haritayı şehrin koordinatlarına yakınlaştır
-
-            // Koordinatlarla hava durumu bilgisini getirin
-            fetchWeatherByCoordinates(latitude, longitude);
-        } else {
-            weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`;
-        }
-    } catch (error) {
-        weatherInfoDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`;
-    }
-}
-
-// Butona tıklama ile şehir adı arama
-document.getElementById('getWeather').addEventListener('click', function() {
-    const cityName = document.getElementById('cityName').value.trim();
-    showCityOnMap(cityName);
-});
-
-
-
-// Koordinatlarla hava durumu bilgilerini getiren fonksiyon
-async function fetchWeatherByCoordinates(latitude, longitude) {
-    const weatherInfoDiv = document.getElementById('weatherInfo'); // Hava durumu bilgilerini göstereceğimiz div
-
-    try {
-        const response = await fetch(`${weatherApiUrl}?lat=${latitude}&lon=${longitude}&appid=${weatherApiKey}&units=metric&lang=tr`);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP hata: ${response.status}`); // Diğer HTTP hataları için genel hata mesajı
-        }
-        
-        const data = await response.json(); // JSON verisini al
-
-        if (data.cod === 200) {
-            // Hava durumu verilerini işleyip ekranda göster
-            const temperature = data.main.temp;
-            const description = data.weather[0].description;
-            const icon = `http://openweathermap.org/img/w/${data.weather[0].icon}.png`;
-            const humidity = data.main.humidity;
-            const windSpeed = data.wind.speed;
-
-            let weatherHtml = `
-                <h3>${data.name}, ${data.sys.country}</h3>
-                <p>${temperature}°C, ${description}</p>
-                <img src="${icon}" alt="Weather Icon">
-                <p>Nem: ${humidity}%</p>
-                <p>Rüzgar Hızı: ${windSpeed} m/s</p>
-            `;
-
-            weatherInfoDiv.innerHTML = weatherHtml; // Hava durumu bilgisini ekrana yazdır
-        } else {
-            weatherInfoDiv.innerHTML = `<p>Hava durumu bilgisi alınamadı. Lütfen tekrar deneyin.</p>`; // Hava durumu bilgisi alınamadıysa kullanıcıya uyarı mesajı göster
-        }
-    } catch (error) {
-        weatherInfoDiv.innerHTML = `<p>Bir hata oluştu: ${error.message}. Lütfen tekrar deneyin.</p>`; // Hata durumunda kullanıcıya uyarı mesajı göster
-    }
-}
-
-// Harita üzerinde tıklama olayını dinle
-map.on('click', function(e) {
-    const lat = e.latlng.lat; // Tıklanan yerin enlem koordinatı
-    const lon = e.latlng.lng; // Tıklanan yerin boylam koordinatı
-
-    fetchWeatherByCoordinates(lat, lon); // Hava durumu bilgilerini koordinatlara göre al
-});
